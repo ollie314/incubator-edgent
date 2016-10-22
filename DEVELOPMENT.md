@@ -34,11 +34,6 @@ these additional development software tools.
 
 * Java 8 - The development setup assumes Java 8 and Linux. 
 
-These are optional
-
-* Android SDK - Allows building of Android specific modules. Set the environment variable `ANDROID_SDK_PLATFORM` to
-the location of the Android platform so that ${ANDROID_SDK_PLATFORM}/android.jar points to a valid jar.
-
 ### Building a Binary Release Bundle
 
 Building an Edgent binary release bundle:
@@ -87,7 +82,7 @@ unique tasks:
 * `reports` : Generate JUnit and Code Coverage reports in `build\distributions\reports`. Use after executing the `test` target. 
   * `reports\tests\overview-summary.html` - JUnit test report
   * `reports\coverage\index.html` - Code coverage report
-* `release` : Build release bundles in `build/release-edgent`, that includes subsets of the Edgent jars that run on Java 7 (`build/distributions/java7`) and Android (`build/distributions/android`).
+* `release` : Build release bundles in `build/release-edgent`, that includes subsets of the Edgent jars that run on Java 7 (`build/distributions/java7`) and Android (`build/distributions/android`). By default SNAPSHOT bundles are created.  Specify `-Dedgent.snapshotId=""` to create bundles for a formal release.
 * `signAll` : Sign the release bundles in `build/release-edgent` (first run `release`).  You will be promoted for your PGP code signing key's Id, the location of the keyring file, and the secret key password.  Default response values may be set with environment variables:
   * `GPG_ID` - the code signing key's id (e.g., D0F56CAD)
   * `GPG_SECRING` - path to the secret key's keyring file

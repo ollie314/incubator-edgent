@@ -51,6 +51,11 @@ ext {
   now = new Date()
   DSTAMP = String.format('%tY%<tm%<td', now)
   TSTAMP = String.format('%tH%<tM', now)
+  
+  snapshotId = "-SNAPSHOT-${DSTAMP}-${TSTAMP}"
+  if (System.properties['edgent.snapshotId'] != null) {
+    snapshotId = System.properties['edgent.snapshotId']
+  }
                    
   external_jars_dir = "$rootProject.projectDir/externalJars/java8"
   
@@ -126,7 +131,9 @@ task copyCommonExtJars << {
 
 def String mkJarNameFromSpec(String jarSpec) {
   // e.g. 'com.google.code.gson:gson:2.2.4' => gson-2.2.4.jar
-  return jarSpec.split(':')[1] + '-' + jarSpec.split(':')[2] + '.jar'
+  // e.g. 'com.google.code.gson:gson:2.2.4@jar' => gson-2.2.4.jar
+  def sfx = jarSpec.endsWith('@jar') ? "" : '.jar'
+  return jarSpec.split(':')[1] + '-' + jarSpec.split(':')[2].replace('@','.') + sfx
 }
 
 def getProjectExtDepFiles(Project proj) { // project's direct ext deps and their transitive deps
@@ -687,11 +694,11 @@ task addVersionDotTxt {
 
 task releaseTarGz(type: Tar) {
   description = 'Create binary release tgz in target_dir'
-  archiveName = "${build_name}-${build_version}-${DSTAMP}-${TSTAMP}-bin.tgz"
+  archiveName = "apache-${build_name}-${build_version}${snapshotId}-bin.tgz"
   compression = Compression.GZIP
   destinationDir = new File("${target_dir}/../release-edgent")
   duplicatesStrategy 'exclude'
-  into "${build_name}"
+  into "${build_name}-${build_version}${snapshotId}"
   // make some things first in the tgz
   with copySpec {
     rename { 'LICENSE' }
@@ -710,6 +717,7 @@ task releaseTarGz(type: Tar) {
     rename { 'README' }
     from rootProject.file('legal/binary-release-readme')
   }
+  from 'RELEASE_NOTES'
   from "$target_dir/version.txt"
   from target_dir
   exclude '**/test/svt/'
@@ -723,14 +731,15 @@ task releaseTarGz(type: Tar) {
 
 task srcReleaseTarGz(type: Tar) {
   description = 'Create source release tgz in target_dir'
-  archiveName = "${build_name}-${build_version}-${DSTAMP}-${TSTAMP}-src.tgz"
+  archiveName = "apache-${build_name}-${build_version}${snapshotId}-src.tgz"
   compression = Compression.GZIP
   destinationDir = new File("${target_dir}/../release-edgent")
   duplicatesStrategy 'exclude'
-  into "${build_name}"
+  into "${build_name}-${build_version}${snapshotId}-src"
   // make some things first in the tgz
   from 'LICENSE', 'NOTICE'
   from 'DISCLAIMER', 'JAVA_SUPPORT.md'
+  from 'RELEASE_NOTES'
   with copySpec {
     rename { 'README' }
     from rootProject.file('legal/source-release-readme')
